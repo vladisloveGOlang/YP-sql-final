@@ -22,6 +22,8 @@ type Parcel struct {
 	CreatedAt string
 }
 
+
+
 type ParcelService struct {
 	store ParcelStore
 }
@@ -45,8 +47,8 @@ func (s ParcelService) Register(client int, address string) (Parcel, error) {
 
 	parcel.Number = id
 
-	fmt.Printf("Новая посылка № %d на адрес %s от клиента с идентификатором %d зарегистрирована %s\n",
-		parcel.Number, parcel.Address, parcel.Client, parcel.CreatedAt)
+	fmt.Printf("Новая посылка № %d на адрес %s от клиента с идентификатором %d зарегистрирована %s, статус посылки %s\n",
+		parcel.Number, parcel.Address, parcel.Client, parcel.CreatedAt, parcel.Status)
 
 	return parcel, nil
 }
@@ -97,14 +99,24 @@ func (s ParcelService) Delete(number int) error {
 }
 
 func main() {
-	// настройте подключение к БД
+	// Подключение к БД
+	DB, err := sql.Open("sqlite", "tracker.db")
+	if err != nil {
+		err = fmt.Errorf("ошибка первого подключения к базе:%w", err)
+		fmt.Println(err)
+	}
 
-	store := // создайте объект ParcelStore функцией NewParcelStore
-	service := NewParcelService(store)
+	//Аргумент для работы сервиса
+	Store := NewParcelStore(DB) 
 
-	// регистрация посылки
+	//Создаем сервис для КРУДов
+	service := NewParcelService(Store)
+
+	//Входные данные
 	client := 1
 	address := "Псков, д. Пушкина, ул. Колотушкина, д. 5"
+
+	//
 	p, err := service.Register(client, address)
 	if err != nil {
 		fmt.Println(err)
@@ -148,7 +160,7 @@ func main() {
 		return
 	}
 
-	// регистрация новой посылки
+	// регистрация новой посылки 
 	p, err = service.Register(client, address)
 	if err != nil {
 		fmt.Println(err)
