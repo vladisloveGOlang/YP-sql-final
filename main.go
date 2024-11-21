@@ -105,6 +105,7 @@ func main() {
 		err = fmt.Errorf("ошибка первого подключения к базе:%w", err)
 		fmt.Println(err)
 	}
+	defer DB.Close()
 
 	//Аргумент для работы сервиса
 	Store := NewParcelStore(DB) 
